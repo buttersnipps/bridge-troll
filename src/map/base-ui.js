@@ -2,11 +2,12 @@
 
 const log = require('../log');
 const svgMarker = require('../svg-marker');
-
 const leaflet = require('leaflet');
+const leafletMini = require('leaflet-minimap');
 const EventEmitter = require('events').EventEmitter;
 
 const tileUrl = 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+//const osmAttrib='Map data &copy; OpenStreetMap contributors';
 const attribution =
   '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
@@ -15,6 +16,8 @@ const attribution =
 // We need something that makes sense for the scale of bridges
 // and a person/car/vehicle moving between them.
 const defaultZoomLevel = 16;
+let marker;
+let map;
 
 class BaseUI extends EventEmitter {
   constructor(options) {
@@ -27,8 +30,13 @@ class BaseUI extends EventEmitter {
     mapEl.id = 'map';
     document.body.appendChild(mapEl);
 
+    let minimapEl = document.createElement('div');
+    minimapEl.id = 'mini-map';
+    document.getElementById('map').appendChild(minimapEl);
+
+  
     // http://leafletjs.com/reference-1.3.0.html#map
-    let map = (this.map = leaflet.map(mapEl, this.options));
+     map = (this.map = leaflet.map(mapEl,minimapEl,this.options));
     leaflet.tileLayer(tileUrl, { attribution }).addTo(map);
     map.setView([lat, lng], defaultZoomLevel);
 
@@ -44,9 +52,10 @@ class BaseUI extends EventEmitter {
         icon: svgMarker.location
       })
       .addTo(map);
-
-    log.info(`Map initialized with centre lat=${lat}, lng=${lng}`);
+    
+    log.info(`Map initialized with centre lat=${lat}, lng=${lng}`); 
   }
+
 
   get zoomLevel() {
     return defaultZoomLevel;
@@ -61,7 +70,7 @@ class BaseUI extends EventEmitter {
    * @param {*} onClick optional onClick handler
    */
   addMarker(lat, lng, title, icon, cardUrl, streetViewUrl) {
-    let marker = leaflet
+     marker = leaflet
       .marker([lat, lng], {
         title,
         icon
@@ -73,10 +82,14 @@ class BaseUI extends EventEmitter {
     marker.on('click', () => marker.openPopup());
     marker.on('dblclick', () => window.open(streetViewUrl));
 
+
+
     log.debug(`Added marker title=${title} at lat=${lat}, lng=${lng}`);
     return marker;
   }
 
+ 
+  
   /**
    * Centre of the map and update location marker
    */
@@ -93,6 +106,19 @@ class BaseUI extends EventEmitter {
   redraw() {
     this.map.invalidateSize();
   }
+  setMinimap(){
+    let myLatLng = leaflet.LatLng(43.7735,79.5019);
+    let minimapLayer =  {
+      osm : leaflet.tileLayer(tileUrl, { attribution })
+    };
+    //let getallmarkers
+    let minimap = new leafletMini(minimapLayer.osm,{ toggleDisplay: true , position:'topright' }).addTo(this.map); 
+    let myLocationMini =  new leaflet.CircleMarker(myLatLng,{radius : 2}); 
+    let layers = new leaflet.LayerGroup([minimapLayer.osm,myLocationMini]);
+    
+    //let minimap = new leafletMini(layers,{toggleDisplay: true , position:'topright'}).addTo(this.map);
+
+  } 
 }
 
 module.exports = BaseUI;
