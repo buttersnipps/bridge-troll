@@ -4,6 +4,9 @@ const debug = require('../debug');
 
 // We need leaflet's CSS included before its JS
 require('../../node_modules/leaflet/dist/leaflet.css');
+//CSS for the minimap gets loaded using this.
+require('../../node_modules/leaflet-minimap/dist/Control.MiniMap.min.css');
+//require('../../node_modules/leaflet-minimap/dist/images');
 
 const DefaultUI = require('./default-ui');
 const DebugUI = require('./debug-ui');

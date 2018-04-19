@@ -23,6 +23,7 @@ geo.once('update', (lat, lng) => {
 
   // Load a map, centered on our current position
   map.init(lat, lng);
+  //Load the mini-map here.
   map.setMinimap();
   // Initialize the view logic
   view.init();

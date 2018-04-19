@@ -29,14 +29,8 @@ class BaseUI extends EventEmitter {
     let mapEl = document.createElement('div');
     mapEl.id = 'map';
     document.body.appendChild(mapEl);
-
-    let minimapEl = document.createElement('div');
-    minimapEl.id = 'mini-map';
-    document.getElementById('map').appendChild(minimapEl);
-
-  
     // http://leafletjs.com/reference-1.3.0.html#map
-     map = (this.map = leaflet.map(mapEl,minimapEl,this.options));
+     map = (this.map = leaflet.map(mapEl,this.options));
     leaflet.tileLayer(tileUrl, { attribution }).addTo(map);
     map.setView([lat, lng], defaultZoomLevel);
 
@@ -55,7 +49,6 @@ class BaseUI extends EventEmitter {
     
     log.info(`Map initialized with centre lat=${lat}, lng=${lng}`); 
   }
-
 
   get zoomLevel() {
     return defaultZoomLevel;
@@ -82,14 +75,9 @@ class BaseUI extends EventEmitter {
     marker.on('click', () => marker.openPopup());
     marker.on('dblclick', () => window.open(streetViewUrl));
 
-
-
     log.debug(`Added marker title=${title} at lat=${lat}, lng=${lng}`);
     return marker;
   }
-
- 
-  
   /**
    * Centre of the map and update location marker
    */
@@ -107,17 +95,15 @@ class BaseUI extends EventEmitter {
     this.map.invalidateSize();
   }
   setMinimap(){
-    let myLatLng = leaflet.LatLng(43.7735,79.5019);
+    let myMarker = leaflet.marker([43.7735,79.5019]);
     let minimapLayer =  {
       osm : leaflet.tileLayer(tileUrl, { attribution })
     };
     //let getallmarkers
-    let minimap = new leafletMini(minimapLayer.osm,{ toggleDisplay: true , position:'topright' }).addTo(this.map); 
-    let myLocationMini =  new leaflet.CircleMarker(myLatLng,{radius : 2}); 
-    let layers = new leaflet.LayerGroup([minimapLayer.osm,myLocationMini]);
-    
-    //let minimap = new leafletMini(layers,{toggleDisplay: true , position:'topright'}).addTo(this.map);
-
+   // let minimap = new leafletMini(minimapLayer.osm,{ toggleDisplay: true , position:'topright' }).addTo(this.map); 
+    //let myLocationMini =  new leaflet.CircleMarker(myLatLng,{radius : 2}); 
+    let layers = new leaflet.LayerGroup([minimapLayer.osm, myMarker]);
+    let minimap = new leaflet.Control.MiniMap(layers,{toggleDisplay: true , position:'topright'}).addTo(this.map);
   } 
 }
 
