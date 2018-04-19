@@ -65,7 +65,6 @@ geo.once('error', err => {
     loadingInfo.innerHTML = msg;
   }
 });
-
 // Request our current position right away
 geo.init();
 
